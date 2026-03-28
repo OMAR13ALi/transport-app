@@ -1,98 +1,98 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
+import { Package2 } from 'lucide-react-native';
+import React from 'react';
+import { FlatList, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { ShipmentCard } from '@/components/shipment-card';
+import { PrimaryButton } from '@/components/ui/primary-button';
+import { useAppContext } from '@/context/app-context';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useThemeColor } from '@/hooks/use-theme-color';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
-
-export default function HomeScreen() {
+function EmptyState() {
+  const secondary = useThemeColor({}, 'textSecondary');
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <View style={styles.empty}>
+      <Package2 size={56} color="#94A3B8" />
+      <Text style={[styles.emptyTitle, { color: secondary }]}>Aucun envoi en cours</Text>
+      <Text style={[styles.emptySubtitle, { color: secondary }]}>
+        Créez votre premier envoi pour commencer
+      </Text>
+    </View>
+  );
+}
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+export default function SenderHomeScreen() {
+  const { shipments } = useAppContext();
+  const bg = useThemeColor({}, 'background');
+  const text = useThemeColor({}, 'text');
+  const secondary = useThemeColor({}, 'textSecondary');
+
+  const myShipments = shipments.filter(s => s.status !== 'arrived');
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: bg }]}>
+      <FlatList
+        data={myShipments}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => <ShipmentCard shipment={item} />}
+        contentContainerStyle={styles.list}
+        ListEmptyComponent={<EmptyState />}
+        ListHeaderComponent={
+          <View style={styles.header}>
+            <View style={styles.greeting}>
+              <Text style={[styles.greetTitle, { color: text }]}>Mes envois</Text>
+              <Text style={[styles.greetSub, { color: secondary }]}>
+                {myShipments.length} envoi{myShipments.length !== 1 ? 's' : ''} en cours
+              </Text>
+            </View>
+            <PrimaryButton
+              label="Envoyer un colis"
+              onPress={() => router.push('/shipment/new')}
+            />
+          </View>
+        }
+        showsVerticalScrollIndicator={false}
+      />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
   },
-  stepContainer: {
-    gap: 8,
+  list: {
+    padding: 20,
+    gap: 12,
+  },
+  header: {
+    gap: 20,
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  greeting: {
+    gap: 4,
+  },
+  greetTitle: {
+    fontSize: 28,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+  },
+  greetSub: {
+    fontSize: 15,
+    fontWeight: '400',
+  },
+  empty: {
+    alignItems: 'center',
+    gap: 12,
+    paddingTop: 60,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    textAlign: 'center',
+    fontWeight: '400',
   },
 });

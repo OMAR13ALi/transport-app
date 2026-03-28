@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx expo:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node -e \"require\\(''lucide-react-native''\\); require\\(''react-native-svg''\\); console.log\\(''OK''\\)\")",
+      "Bash(npm install:*)",
+      "Bash(ls /c/Users/omar/Desktop/Louage-app/app/\\\\\\(tabs\\\\\\))"
+    ]
+  }
+}
